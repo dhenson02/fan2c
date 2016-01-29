@@ -1,7 +1,7 @@
 'use strict';
 
 import React from 'react';
-import Roster from './Roster';
+import Franchise from './Franchise';
 
 class App extends React.Component {
     constructor ( props ) {
@@ -11,10 +11,10 @@ class App extends React.Component {
 
     render () {
         return (
-            <div>
-                <h1>{this.props.settings.name}</h1>
-                <Roster id="0001"/>
-            </div>
+            <column cols="8">
+                <h1 className="title">{this.props.settings.name}</h1>
+                <Franchise id="0001"/>
+            </column>
         );
     }
 }

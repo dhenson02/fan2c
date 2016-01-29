@@ -35,13 +35,13 @@ const io = require('socket.io')(server);
 io.on('connection', function ( socket ) {
     console.log("socket.io got a connection...");
     socket.on("load league settings", () => {
-        let settings = league.getSettings();
-        socket.emit("league settings loaded", settings);
+        socket.emit("league settings loaded", league.getSettings());
+    });
+    socket.on("load franchise", id => {
+        socket.emit("franchise loaded", league.getFranchise(id));
     });
     socket.on("load roster", id => {
-        console.log(id);
-        let roster = rosters.getRoster(id);
-        socket.emit("roster loaded", roster);
+        socket.emit("roster loaded", rosters.getRoster(id));
     });
     socket.on("disconnect", () => console.log("D/C'd dang"));
 });

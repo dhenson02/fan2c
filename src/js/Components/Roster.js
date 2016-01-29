@@ -22,15 +22,36 @@ class Roster extends React.Component {
 
     render () {
         let playerList = this.state.players.map(player => {
-            return <li key={player.id}>{player.name}</li>;
+            return (
+                <tr key={player.id}>
+                    <td data-label="Name">
+                        {player.name}
+                    </td>
+                    <td data-label="Position">
+                        {player.position}
+                    </td>
+                    <td data-label="Team">
+                        {player.team}
+                    </td>
+                </tr>
+            );
         });
         return (
-            <div className="container">
-                <h1 className="title">Roster</h1>
-                <ul>
-                    {playerList}
-                </ul>
-            </div>
+            <row>
+                <table className="table-responsive table-bordered table-stripped">
+                    <caption>Roster</caption>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Position</th>
+                            <th>Team</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {playerList}
+                    </tbody>
+                </table>
+            </row>
         );
     }
 }
