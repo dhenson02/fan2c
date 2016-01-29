@@ -4,7 +4,7 @@
  - [Express JS](http://expressjs.com/) 4.x (eventually 5.x)
  - [React](https://facebook.github.io/react/) >= 0.14.6
  - [Babel](http://babeljs.io/) >= 6
- - [Kube CSS Framework](https://imperavi.com/kube/)
+ - [Kube CSS Framework](https://imperavi.com/kube/) >= 5.0
 
 and plenty more (see `package.json` for details).
 
