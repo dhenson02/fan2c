@@ -12,13 +12,11 @@ class App extends React.Component {
     render () {
         return (
             <div>
-                <h1>{this.props.title}</h1>
+                <h1>{this.props.settings.name}</h1>
                 <Player/>
             </div>
         );
     }
 }
-
-//render(<App title="Hey"/>, document.getElementById("main"));
 
 export default App;
