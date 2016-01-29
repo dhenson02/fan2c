@@ -6,13 +6,22 @@
  - [Babel](http://babeljs.io/) >= 6
  - [Kube CSS Framework](https://imperavi.com/kube/)
 
-and plenty more (see package.json for details).
+and plenty more (see `package.json` for details).
 
+## Requirements
+
+ - screen - `sudo apt-get install screen`
+ - [node](https://nodejs.org) ( I'm using **>= 5.5.0**, so I suggest using that )
+     - npm ( **3.3.12** works well )
+ 
 ## Setup
 
 ```bash
 npm install
-npm run build # or build-dist, watch, or watch-dist
+cp config.json.blank config.json 
+# ^...edit the config.json to match your league's settings
+npm run build 
+# ^ or build-dist, watch, or watch-dist
 npm start
 ```
 
