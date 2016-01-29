@@ -36,8 +36,12 @@ io.on('connection', function ( socket ) {
     console.log("socket.io got a connection...");
     socket.on("load league settings", () => {
         let settings = league.getSettings();
-        console.log("Sending league settings: ", settings);
         socket.emit("league settings loaded", settings);
+    });
+    socket.on("load roster", id => {
+        console.log(id);
+        let roster = rosters.getRoster(id);
+        socket.emit("roster loaded", roster);
     });
     socket.on("disconnect", () => console.log("D/C'd dang"));
 });

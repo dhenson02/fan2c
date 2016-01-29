@@ -11,18 +11,6 @@ class Rosters {
         this.rosters = JSON.parse(fs.readFileSync(filePath, { encoding: "utf8" })).franchise;
     }
 
-    _loadRosters ( callback ) {
-        fs.readFile(filePath, { encoding: "utf8" }, ( err, data ) => {
-            /*let rosters = new Immutable.Map(JSON.parse(data));
-             this.rosterHistory = new Immutable.List(rosters.get('franchise'));*/
-            this.rosters = new Immutable.Map(JSON.parse(data));
-            callback();
-        });
-    }
-
-    loadRosters () {
-    }
-
     _getRoster ( id ) {
         return (
             this.Rosters
