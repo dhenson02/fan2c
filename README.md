@@ -1,6 +1,6 @@
-# default-react
+# fan2c
 
-### My boilerplate using 
+### My FFL app using 
  - [Express JS](http://expressjs.com/) 4.x (eventually 5.x)
  - [React](https://facebook.github.io/react/) >= 0.14.6
  - [Babel](http://babeljs.io/) >= 6
@@ -18,7 +18,7 @@ npm start
 
 ## Who this is for
 
-Me and anyone else loving React needing a very basic boilerplate to start from but not wanting to redo the entire freaking code like most the others available.
+Players and commissioners of [My Fantasy League](http://www.myfantasyleague.com/) teams/leagues.
 
 ## Credits
 

@@ -1,7 +1,7 @@
 {
-	"name": "default-react",
+	"name": "fan2c",
 	"version": "1.0.0",
-	"description": "Boilerplate app for React.",
+	"description": "Fantasy Football Managment App for myfantasyleague.com.",
 	"main": "server.js",
 	"scripts": {
 		"start": "node --harmony_destructuring server.js",
@@ -24,7 +24,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/dhenson02/default-react.git"
+		"url": "git+https://github.com/dhenson02/fan2c.git"
 	},
 	"keywords": [
         "react",
@@ -33,9 +33,9 @@
 	"author": "Deryck Henson (deryck.henson@gmail.com)",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/dhenson02/default-react/issues"
+		"url": "https://github.com/dhenson02/fan2c/issues"
 	},
-	"homepage": "https://github.com/dhenson02/default-react#readme",
+	"homepage": "https://github.com/dhenson02/fan2c#readme",
 	"dependencies": {
 		"body-parser": "^1.14.2",
 		"express": "^4.13.4",
