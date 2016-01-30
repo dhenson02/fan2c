@@ -9,29 +9,23 @@ class Franchise extends React.Component {
         super(props);
         this.state = {
             id: props.id,
-            settings: null
+            settings: props.settings
         };
-        socket.on("franchise loaded", franchise => this.franchiseLoaded(franchise));
-        socket.emit("load franchise", props.id);
-    }
-
-    franchiseLoaded ( franchise ) {
-        this.setState({
-            settings: franchise
-        });
     }
 
     render () {
-        let name = this.state.settings ? this.state.settings.name : "";
         return (
-            <column>
-                <row>
-                    <h2>{name}</h2>
-                </row>
-                <row>
+            <div className="column">
+                <div className="row">
+                    <h3>
+                        <img width="96" height="96" src={this.state.settings.icon}/>
+                        {this.state.settings.name}
+                    </h3>
+                </div>
+                <div className="row">
                     <Roster id={this.state.id}/>
-                </row>
-            </column>
+                </div>
+            </div>
         );
     }
 }

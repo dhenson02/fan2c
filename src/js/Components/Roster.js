@@ -7,7 +7,6 @@ class Roster extends React.Component {
     constructor ( props ) {
         super(props);
         this.state = {
-            id: props.id,
             players: []
         };
         socket.on("roster loaded", roster => this.rosterLoaded(roster));
@@ -37,21 +36,19 @@ class Roster extends React.Component {
             );
         });
         return (
-            <row>
-                <table className="table-responsive table-bordered table-stripped">
-                    <caption>Roster</caption>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Position</th>
-                            <th>Team</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {playerList}
-                    </tbody>
-                </table>
-            </row>
+            <table className="table-responsive table-bordered table-stripped">
+                <caption>Roster</caption>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Position</th>
+                        <th>Team</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {playerList}
+                </tbody>
+            </table>
         );
     }
 }

@@ -12,7 +12,7 @@ const Rosters = require('./server/build-rosters');
 const League = require('./server/build-league');
 let players = new Players();
 let rosters = new Rosters(players);
-let league = new League(rosters);
+let league = new League();
 
 Server.use('/players/:id', ( req, res ) => {
     res.json(players.getPlayer(req.params.id));
@@ -36,9 +36,6 @@ io.on('connection', function ( socket ) {
     console.log("socket.io got a connection...");
     socket.on("load league settings", () => {
         socket.emit("league settings loaded", league.getSettings());
-    });
-    socket.on("load franchise", id => {
-        socket.emit("franchise loaded", league.getFranchise(id));
     });
     socket.on("load roster", id => {
         socket.emit("roster loaded", rosters.getRoster(id));

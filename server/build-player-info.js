@@ -10,23 +10,6 @@ class Players {
         this.players = JSON.parse(fs.readFileSync(filePath, { encoding: "utf8" })).player;
     }
 
-    _loadPlayers () {
-        fs.readFile(filePath, { encoding: "utf8" }, ( err, data ) => {
-            let players = new Map(JSON.parse(data));
-            this.players = new Immutable.List(players.get('player'));
-        });
-    }
-
-    loadPlayers () {
-    }
-
-    _getPlayer ( id ) {
-        return (
-            this.players
-                .getIn({ id: id })
-        );
-    }
-
     getPlayer ( id ) {
         return findWhere(this.players, { id: id });
     }
