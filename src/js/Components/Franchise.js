@@ -18,7 +18,7 @@ class Franchise extends React.Component {
             <div className="column">
                 <div className="row">
                     <h3>
-                        <img width="96" height="96" src={this.state.settings.icon}/>
+                        <img className="icon" width="48" height="48" src={this.state.settings.icon}/>
                         {this.state.settings.name}
                     </h3>
                 </div>

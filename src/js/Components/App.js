@@ -1,7 +1,7 @@
 'use strict';
 
 import React from 'react';
-import lodash from 'lodash';
+import findWhere from 'lodash.findwhere';
 import Franchise from './Franchise';
 
 class App extends React.Component {
@@ -11,12 +11,17 @@ class App extends React.Component {
     }
 
     render () {
+        let settings = this.props.settings;
+        let franchise = settings.franchises.franchise;
+        let team = findWhere(franchise, { id: "0001" });
         return (
-            <div>
+            <div className="column">
                 <div className="row">
-                    <h1 className="title">{this.props.settings.name}</h1>
+                    <h1 className="title">
+                        {settings.name}
+                    </h1>
                 </div>
-                <Franchise id="0001" settings={lodash.find(this.props.settings.franchises.franchise, { id: "0001" })}/>
+                <Franchise id="0001" settings={team}/>
             </div>
         );
     }

@@ -7,11 +7,14 @@ const filePath = path.join(__dirname, '..', '/data/players.json');
 
 class Players {
     constructor () {
-        this.players = JSON.parse(fs.readFileSync(filePath, { encoding: "utf8" })).player;
+        let file = fs.readFileSync(filePath, { encoding: "utf8" });
+        this.players = JSON.parse(file).player;
     }
 
     getPlayer ( id ) {
-        return findWhere(this.players, { id: id });
+        let player = findWhere(this.players, { id: id });
+        player.name = player.name.replace(/^(\w+), (\w+)/, "$2 $1");
+        return player;
     }
 }
 

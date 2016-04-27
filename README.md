@@ -1,19 +1,39 @@
 # fan2c
 
 ### My FFL app using 
- - [Express JS](http://expressjs.com/) 4.x (eventually 5.x)
+ - [Express JS](http://expressjs.com/) 4.x
  - [React](https://facebook.github.io/react/) >= 0.14.6
  - [Babel](http://babeljs.io/) >= 6
- - [Kube CSS Framework](https://imperavi.com/kube/) >= 5.0
+ - [Milligram](https://milligram.github.io/) 1.1.0
 
 and plenty more (see `package.json` for details).
 
 ## Requirements
 
+ - [node](https://nodejs.org) I'm using **>= 5.5.0**, so I suggest using that
+     
+### Semi-Requirements (if you want to use my npm scripts - see **package.json**)
+
  - screen - `sudo apt-get install screen`
- - [node](https://nodejs.org) ( I'm using **>= 5.5.0**, so I suggest using that )
-     - npm ( **3.3.12** works well )
  
+## Pre-setup
+
+#### Requires a bit of manual labor.  Most of it can be done by running:
+
+```bash
+sh grab-all.sh
+```
+
+However, some of these require different parameters (week and/or player number).  Those that don't have this requirement will be filled correctly.  The others can be obtained with:
+
+```bash
+sh grab.sh $TYPE $WEEK $PLAYER
+    # ... as many times as necessary
+sh extract.sh
+```
+
+`extract.sh` cleans up the JSON that is returned because it does some unnecessary nesting and adds extra data I don't need.
+
 ## Setup
 
 ```bash

@@ -4,7 +4,7 @@
   "description": "Fantasy Football Managment App for myfantasyleague.com.",
   "main": "server.js",
   "scripts": {
-    "start": "node --harmony_destructuring server.js",
+    "start": "node server.js",
     "watch": "npm run html && npm run js-watch && npm run css-watch",
     "watch-dist": "npm run html && npm run js-watch-dist && npm run css-watch",
     "build": "npm run html && npm run js-build && npm run css",
@@ -45,10 +45,11 @@
     "immutable": "^3.7.6",
     "lodash": "^4.1.0",
     "lodash.findwhere": "^3.1.0",
-    "milligram": "^1.0.3",
+    "lodash.sortby": "^4.4.2",
+    "milligram": "^1.1.0",
     "normalize.css": "^3.0.3",
-    "react": "^0.14.6",
-    "react-dom": "^0.14.6",
+    "react": "^15.0.1",
+    "react-dom": "^15.0.1",
     "reqwest": "^2.0.5",
     "socket.io": "^1.4.4"
   },
