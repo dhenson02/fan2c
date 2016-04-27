@@ -7,21 +7,68 @@ import Franchise from './Franchise';
 class App extends React.Component {
     constructor ( props ) {
         super(props);
-        this.state = {};
+        this.state = {
+            id: '',
+            team: {},
+            teams: [],
+            teamIDs: []
+        };
+    }
+
+    componentWillMount () {
+        let id = this.props.id || '0001';
+        this.setupFranchise(id);
+    }
+
+    setupFranchise ( id ) {
+        let settings = this.props.settings;
+        let teams = settings.franchises.franchise;
+        let teamIDs = teams.map(team => team.id);
+        let team = findWhere(teams, { id });
+        this.setState({
+            id,
+            team,
+            teams,
+            teamIDs
+        });
+    }
+
+    handleID ( event ) {
+        event.preventDefault();
+        let id = document.getElementById('id-input').value;
+        if ( id ) {
+            this.setupFranchise(id);
+        }
     }
 
     render () {
         let settings = this.props.settings;
-        let franchise = settings.franchises.franchise;
-        let team = findWhere(franchise, { id: "0001" });
+        let teamList = this.state.teamIDs.map(( id, i ) => {
+            let team = findWhere(this.state.teams, { id });
+            return (
+                <option key={i} value={id}>
+                    {team.name}
+                </option>
+            );
+        });
         return (
-            <div className="column">
-                <div className="row">
-                    <h1 className="title">
+            <div className="col-xs-12">
+                <header className="heading text-right">
+                    <h5 className="title">
                         {settings.name}
-                    </h1>
+                    </h5>
+                </header>
+                <div className="form-group">
+                    <div className="input-group">
+                        <select className="form-control"
+                                onChange={e => this.handleID(e)}
+                                id="id-input">
+                            {teamList}
+                        </select>
+                    </div>
                 </div>
-                <Franchise id="0001" settings={team}/>
+                <Franchise id={this.state.id}
+                           settings={this.state.team}/>
             </div>
         );
     }

@@ -2,19 +2,31 @@
 const fs = require('fs');
 const path = require('path');
 const Immutable = require('immutable');
-const findWhere = require('lodash.findwhere');
 const filePath = path.join(__dirname, '..', '/data/players.json');
+const injuryFilePath = path.join(__dirname, '..', '/data/injuries.json');
 
 class Players {
     constructor () {
         let file = fs.readFileSync(filePath, { encoding: "utf8" });
-        this.players = JSON.parse(file).player;
+        let injuryFile = fs.readFileSync(injuryFilePath, { encoding: "utf8" });
+        this.players = new Map();
+        this.injuries = new Map();
+        let players = JSON.parse(file).player;
+        let injuries = JSON.parse(injuryFile).injury;
+        players.forEach(player => {
+            this.players.set(player.id, player);
+        });
+        injuries.forEach(injury => {
+            this.injuries.set(injury.id, injury);
+        });
+    }
+
+    getInjury ( id ) {
+        return this.injuries.get(id);
     }
 
     getPlayer ( id ) {
-        let player = findWhere(this.players, { id: id });
-        player.name = player.name.replace(/^(\w+), (\w+)/, "$2 $1");
-        return player;
+        return this.players.get(id);
     }
 }
 

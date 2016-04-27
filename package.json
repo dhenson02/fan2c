@@ -43,7 +43,6 @@
     "fastclick": "^1.0.6",
     "fastdom": "^1.0.0",
     "immutable": "^3.7.6",
-    "lodash": "^4.1.0",
     "lodash.findwhere": "^3.1.0",
     "lodash.sortby": "^4.4.2",
     "milligram": "^1.1.0",

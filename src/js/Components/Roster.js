@@ -1,125 +1,112 @@
 'use strict';
 
 import React from 'react';
-import PlayerItem from './Player/PlayerItem';
+import PlayerList from './Player/PlayerList';
 import sortBy from 'lodash.sortby';
+import findWhere from 'lodash.findwhere';
 const socket = require('socket.io-client/socket.io')();
-
-class PlayerList extends React.Component {
-    constructor ( props ) {
-        super(props);
-        this.state = {
-            playerList: {
-                QB: [],
-                RB: [],
-                WR: [],
-                TE: [],
-                Def: [],
-                PK: []
-            }
-        };
-    }
-
-    setupList ( players ) {
-        let total = players.length;
-        let playerList = {
-            QB: [],
-            RB: [],
-            WR: [],
-            TE: [],
-            Def: [],
-            PK: []
-        };
-        for ( let i = 0; i < total; ++i ) {
-            let player = players[ i ];
-            playerList[ player.position ][ i ] = <PlayerItem key={i} player={player}/>;
-        }
-        this.setState({
-            playerList
-        });
-    }
-
-    componentWillMount () {
-        this.setupList(this.props.players);
-    }
-
-    componentWillReceiveProps ( nextProps ) {
-        this.setupList(nextProps.players);
-    }
-
-    render () {
-        let playerList = this.state.playerList;
-        return (
-            <tbody>
-                {playerList.QB}
-                {playerList.RB}
-                {playerList.WR}
-                {playerList.TE}
-                {playerList.Def}
-                {playerList.PK}
-            </tbody>
-        );
-    }
-}
 
 class Roster extends React.Component {
     constructor ( props ) {
         super(props);
+        this.isLoading = false;
         this.state = {
             players: [],
             _players: [],
-            currentSorting: 'position'
+            sorting: 'position'
         };
-        this.sortFunctions = {
-            positions: {
-                QB: 6,
-                RB: 5,
-                WR: 4,
-                TE: 3,
-                Def: 2,
-                PK: 1
-            },
-            nameSort ( name ) {
-                let names = name.split(/\s/);
-                return `${names.slice(-1)}${names.slice(0,-1)}`;
-            },
-            positionSort ( first, second ) {
-                let a = this.positions[ first ];
-                let b = this.positions[ second ];
-                if ( a > b ) {
-                    return 1;
-                }
-                if ( a < b ) {
-                    return -1;
-                }
-                return 0;
+
+        this.positions = {
+            QB: 6,
+            RB: 5,
+            WR: 4,
+            TE: 3,
+            Def: 2,
+            PK: 1
+        };
+
+        this.positionSort = ( first, second ) => {
+            let a = this.positions[ first.position ];
+            let b = this.positions[ second.position ];
+            if ( a < b ) {
+                return 1;
             }
+            if ( a > b ) {
+                return -1;
+            }
+            return 0;
+        };
+
+        socket.on("starting lineup loaded", lineup => {
+            let roster = this.tempRoster;
+            let fullRoster = roster.map(player => {
+                let starter = findWhere(lineup, { id: player.id });
+                if ( starter === undefined ) {
+                    return player;
+                }
+                if ( typeof starter.score === 'string' ) {
+                    starter.score = starter.score || '0.0';
+                    return Object.assign({}, player, starter);
+                }
+                return Object.assign({ status: 'starter' }, player, starter);
+            });
+            this.rosterLoaded(fullRoster);
+        });
+
+        socket.on("roster loaded", ( roster, id ) => {
+            this.tempRoster = roster;
+            socket.emit("load starting lineup", id, props.withScores);
+        });
+    }
+
+    componentWillReceiveProps ( nextProps ) {
+        if ( this.isLoading !== true && nextProps.id !== this.props.id ) {
+            socket.emit("load roster", nextProps.id);
+            this.isLoading = true;
         }
-        socket.on("roster loaded", players => this.rosterLoaded(players));
-        socket.emit("load roster", props.id);
+    }
+
+    componentWillMount () {
+        socket.emit("load roster", this.props.id);
+        this.isLoading = true;
     }
 
     handlePlayerSort ( field ) {
-        let players = this.state._players.slice(0);
+        let _players = this.state._players.slice(0);
         let self = this;
         let sorter = {
             name () {
-                return sortBy(players, player => {
-                    let value = player.name;
-                    return self.sortFunctions.nameSort(value);
-                });
+                if ( self.state.sorting === 'name' ) {
+                    let players = self.state.players.slice(0);
+                    return players.reverse();
+                }
+                return sortBy(_players, 'name');
             },
             position () {
-                return players.sort(( a, b ) => {
-                    return self.sortFunctions.positionSort(a.position, b.position);
-                });
+                if ( self.state.sorting === 'position' ) {
+                    let players = self.state.players.slice(0);
+                    return players.reverse();
+                }
+                return _players.sort(self.positionSort);
             },
             team () {
-                return sortBy(players, 'team');
+                if ( self.state.sorting === 'team' ) {
+                    let players = self.state.players.slice(0);
+                    return players.reverse();
+                }
+                return sortBy(_players, 'team');
+            },
+            score () {
+                if ( self.state.sorting === 'score' ) {
+                    let players = self.state.players.slice(0);
+                    return players.reverse();
+                }
+                return sortBy(_players, player => parseInt(player.score, 10));
             }
         }
         this.setState({
-            players: sorter[ field ]()
+            players: sorter[ field ](),
+            sorting: field
         });
     }
 
@@ -128,28 +115,79 @@ class Roster extends React.Component {
             players,
             _players: players
         });
+        this.isLoading = false;
+        this.tempRoster = null;
     }
 
     shouldComponentUpdate ( nextProps, nextState ) {
-        return nextProps.id !== this.props.id ||
-            nextState.players !== this.state.players;
+        return nextProps.withScores !== this.props.withScores ||
+            nextProps.id !== this.props.id ||
+            nextState.players !== this.state.players ||
+            nextState.sorting !== this.state.sorting;
     }
 
     render () {
         let playerList = this.state.players.length !== 0 ?
-                         <PlayerList players={this.state.players}/> :
+                         <PlayerList players={this.state.players}
+                                     withScores={this.props.withScores}/> :
                          null;
+        // Put back  table-hover if needed (class)
         return (
-            <table className="table-responsive table-bordered table-stripped">
+            <table className="table table-roster">
                 <thead>
-                    <tr>
-                        <th onClick={e => this.handlePlayerSort('name')}>Name</th>
-                        <th onClick={e => this.handlePlayerSort('position')}>Position</th>
-                        <th onClick={e => this.handlePlayerSort('team')}>Team</th>
-                    </tr>
+                    <TableHead sorting={this.state.sorting}
+                               withScores={this.props.withScores}
+                               handleSort={field => this.handlePlayerSort(field)} />
                 </thead>
                 {playerList}
             </table>
+        );
+    }
+}
+
+class TableHead extends React.Component {
+    constructor ( props ) {
+        super(props);
+    }
+
+    shouldComponentUpdate ( nextProps ) {
+        return nextProps.sorting !== this.props.sorting ||
+            nextProps.withScores !== this.props.withScores;
+    }
+
+    render () {
+        let nameClass = this.props.sorting === 'name' ? 'active' : '';
+        let positionClass = this.props.sorting === 'position' ? 'active' : '';
+        let teamClass = this.props.sorting === 'team' ? 'active' : '';
+        let scoreColumn = null;
+        if ( this.props.withScores === true ) {
+            let scoreClass = this.props.sorting === 'score' ? 'active' : '';
+            scoreColumn = (
+                <th onClick={e => this.props.handleSort('score')}
+                    className={scoreClass}>
+                    Score
+                </th>
+            );
+        }
+        return (
+            <tr>
+                <th>
+                    ID
+                </th>
+                {scoreColumn}
+                <th onClick={e => this.props.handleSort('name')}
+                    className={nameClass}>
+                    Name
+                </th>
+                <th onClick={e => this.props.handleSort('position')}
+                    className={positionClass}>
+                    Position
+                </th>
+                <th onClick={e => this.props.handleSort('team')}
+                    className={teamClass}>
+                    Team
+                </th>
+            </tr>
         );
     }
 }

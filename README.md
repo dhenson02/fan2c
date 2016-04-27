@@ -4,7 +4,7 @@
  - [Express JS](http://expressjs.com/) 4.x
  - [React](https://facebook.github.io/react/) >= 0.14.6
  - [Babel](http://babeljs.io/) >= 6
- - [Milligram](https://milligram.github.io/) 1.1.0
+ - [Bootstrap (with Bootswatch)](https://bootswatch.com/paper/) 3.3.6
 
 and plenty more (see `package.json` for details).
 
