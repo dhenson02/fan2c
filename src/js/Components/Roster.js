@@ -67,7 +67,8 @@ class Roster extends React.Component {
         super(props);
         this.state = {
             players: [],
-            _players: []
+            _players: [],
+            currentSorting: 'position'
         };
         this.sortFunctions = {
             positions: {
@@ -92,27 +93,25 @@ class Roster extends React.Component {
                     return -1;
                 }
                 return 0;
-            },
-            teamSort ( team ) {
-                return team;
             }
         }
-        socket.on("roster loaded", this.rosterLoaded.bind(this));
+        socket.on("roster loaded", players => this.rosterLoaded(players));
         socket.emit("load roster", props.id);
     }
 
     handlePlayerSort ( field ) {
         let players = this.state._players.slice(0);
+        let self = this;
         let sorter = {
             name () {
                 return sortBy(players, player => {
                     let value = player.name;
-                    return this.sortFunctions.nameSort(value);
+                    return self.sortFunctions.nameSort(value);
                 });
             },
             position () {
                 return players.sort(( a, b ) => {
-                    return this.sortFunctions.positionSort(a.position, b.position);
+                    return self.sortFunctions.positionSort(a.position, b.position);
                 });
             },
             team () {
