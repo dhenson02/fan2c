@@ -1,7 +1,6 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-// const Immutable = require('immutable');
 const filePath = path.join(__dirname, '..', '/data/weeklyResults.json');
 
 class Results {
@@ -22,7 +21,12 @@ class Results {
 
     getLineupWithScores ( id ) {
         let lineup = this.results.get(id).player;
-        return lineup;
+        return lineup.map(player => {
+            player.score = player.score !== '' ?
+                    parseInt(player.score, 10) :
+                    0;
+            return player;
+        });
         /*return lineup.map(player => {
             let rosterPlayer = this.players.getPlayer(player.id);
             let fullPlayer = Object.assign({}, player, rosterPlayer);

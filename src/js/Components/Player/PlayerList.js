@@ -9,19 +9,19 @@ class PlayerList extends React.Component {
     }
 
     shouldComponentUpdate ( nextProps ) {
-        return nextProps.withScores !== this.props.withScores ||
+        return nextProps.showStarters !== this.props.showStarters ||
             nextProps.players !== this.props.players;
     }
 
     render () {
         let playerList = this.props.players.map(( player, i ) => {
-            if ( this.props.withScores === true && player.status === 'nonstarter' ) {
+            if ( this.props.showStarters === true && player.status === 'nonstarter' ) {
                 return;
             }
             return (
                 <PlayerItem key={i}
                             player={player}
-                            withScores={this.props.withScores}/>
+                            showStarters={this.props.showStarters}/>
             );
         });
         return (

@@ -38,10 +38,14 @@ Server.use('/league', ( req, res ) => {
 const io = require('socket.io')(server);
 
 io.on('connection', function ( socket ) {
-    console.log("socket.io got a connection...");
+    console.log(`socket.io got a connection from: `, socket.id);
 
     socket.on("load league settings", () => {
         socket.emit("league settings loaded", league.getSettings());
+    });
+
+    socket.on("load franchise", id => {
+        socket.emit("franchise loaded", league.getFranchise(id), id);
     });
 
     socket.on("load player injury", id => {

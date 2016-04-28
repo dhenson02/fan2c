@@ -1,6 +1,6 @@
 /* LOADER - thanks! http://codepen.io/adamdoti/pen/qdJjoa */
 
-.spinner {
+.loader {
 	transform: translate3d(-50%, -50%, 0) rotate(90deg);
 	position: absolute;
 	top: 50%;
@@ -8,21 +8,21 @@
 	width: 2em;
 }
 
-.spinner, .spinner div {
+.loader, .loader div {
 	transform-origin: 50% 50%;
 }
 
-.spinner div {
+.loader div {
 	position: absolute;
 	top: 0;
 	left: 0;
 	width: 100%;
 }
 
-.spinner:before,
-.spinner:after,
-.spinner div:before,
-.spinner div:after {
+.loader:before,
+.loader:after,
+.loader div:before,
+.loader div:after {
 	animation-duration: 1000ms;
 	animation-iteration-count: infinite;
 	content: "";
@@ -33,25 +33,25 @@
 	position: absolute;
 }
 
-.spinner:before,
-.spinner div:before {
+.loader:before,
+.loader div:before {
 	animation-name: orbBounceBefore;
 	top: -0.25em;
 	left: -0.25em;
 }
 
-.spinner:after,
-.spinner div:after {
+.loader:after,
+.loader div:after {
 	animation-name: orbBounceAfter;
 	top: -0.25em;
 	right: -0.25em;
 }
 
-.spinner-a {
+.loader-a {
 	transform: rotate(60deg) translateY(0);
 }
 
-.spinner-b {
+.loader-b {
 	transform: rotate(120deg) translateY(0);
 }
 
@@ -83,22 +83,22 @@
 	}
 }
 
-.spinner-a:before {
+.loader-a:before {
 	animation-delay: 166.66667ms;
 }
 
-.spinner-b:before {
+.loader-b:before {
 	animation-delay: 333.33333ms;
 }
 
-.spinner:after {
+.loader:after {
 	animation-delay: 500ms;
 }
 
-.spinner-a:after {
+.loader-a:after {
 	animation-delay: 666.66667ms;
 }
 
-.spinner-b:after {
+.loader-b:after {
 	animation-delay: 833.33333ms;
 }

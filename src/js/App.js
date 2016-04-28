@@ -3,11 +3,44 @@
 import React from 'react';
 import { render } from 'react-dom';
 import App from './Components/App';
-const socket = require('socket.io-client/socket.io')();
+import Loader from './Components/Loader';
+import socket from './Socket';
 
-socket.emit("load league settings");
-socket.on("league settings loaded", settings => {
-    console.log( window.location.search );
-    render(<App settings={settings}/>, document.getElementById("main"))
-});
+class Main extends React.Component {
+    constructor () {
+        super();
+        this.state = {
+            settings: null
+        };
+        socket.on("league settings loaded", settings => {
+            this.setState({
+                settings
+            });
+        });
+    }
 
+    componentWillMount () {
+        if ( this.state.settings === null ) {
+            socket.emit("load league settings");
+        }
+    }
+
+    shouldComponentUpdate ( nextProps, nextState ) {
+        return nextState.settings !== this.state.settings;
+    }
+
+    render () {
+        let loading = this.state.settings === null;
+        let app = loading === true ?
+                  null :
+                  <App settings={this.state.settings}/>;
+        return (
+            <div>
+                <Loader visible={loading} />
+                {app}
+            </div>
+        );
+    }
+}
+
+render(<Main />, document.getElementById("main"));

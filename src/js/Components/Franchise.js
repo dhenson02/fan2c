@@ -2,52 +2,37 @@
 
 import React from 'react';
 import Roster from "./Roster";
-const socket = require('socket.io-client/socket.io')();
 
 class Franchise extends React.Component {
     constructor ( props ) {
         super(props);
         this.state = {
-            withScores: true
+            showStarters: true
         };
     }
 
-    componentWillMount () {
-        this.setState({
-            withScores: true
-        });
-    }
-
     shouldComponentUpdate ( nextProps, nextState ) {
-        return nextState.withScores !== this.state.withScores ||
-            nextProps.id !== this.props.id ||
-            nextProps.settings.icon !== this.props.settings.icon ||
-            nextProps.settings.name !== this.props.settings.name;
+        return nextState.showStarters !== this.state.showStarters ||
+            nextProps.id !== this.props.id;
     }
 
     handleWithScores ( e ) {
         e.preventDefault();
-        let withScores = !this.state.withScores;
-        this.setState({ withScores });
+        let showStarters = !this.state.showStarters;
+        this.setState({ showStarters });
     }
 
     render () {
-        let scoreButtonClass = 'btn btn-default btn-sm';
-        let scoreButtonText = 'Hide scores';
-        if ( this.state.withScores === false ) {
-            scoreButtonClass = 'btn btn-success btn-sm';
-            scoreButtonText = 'Show scores';
+        let scoreButtonClass = 'btn btn-success btn-sm';
+        let scoreButtonText = 'Show all';
+        if ( this.state.showStarters === false ) {
+            scoreButtonClass = 'btn btn-default btn-sm';
+            scoreButtonText = 'Hide non-starters';
         }
+        let teamInfo = this.props.children || null;
         return (
             <div className="panel panel-default">
-                <div className="jumbotron">
-                    <h2>
-                        <img className="img-circle"
-                             width="48"
-                             height="48"
-                             src={this.props.settings.icon}/> {this.props.settings.name}
-                    </h2>
-                </div>
+                {teamInfo}
                 <div>
                     <p className="text-center">
                         <a href="#"
@@ -57,7 +42,7 @@ class Franchise extends React.Component {
                         </a>
                     </p>
                     <Roster id={this.props.id}
-                            withScores={this.state.withScores} />
+                            showStarters={this.state.showStarters} />
                 </div>
             </div>
         );
