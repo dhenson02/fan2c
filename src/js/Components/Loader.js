@@ -8,14 +8,14 @@ class Loader extends React.Component {
     }
 
     shouldComponentUpdate ( nextProps ) {
-        return nextProps.hidden !== this.props.hidden;
+        return nextProps.visible !== this.props.visible;
     }
 
     render () {
-        let display = this.props.hidden === true ?
-                      'none' :
-                      'block';
-        let style = { display };
+        let visibility = this.props.visible === true ?
+                      'visible' :
+                      'hidden';
+        let style = { visibility };
         return (
             <div className="loader"
                  style={style}

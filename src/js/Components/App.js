@@ -2,7 +2,10 @@
 
 import React from 'react';
 import { findWhere } from 'lodash';
+import Loader from './Loader';
+import Navigation from './Navigation';
 import Franchise from './Franchise';
+import LiveScoring from './LiveScoring';
 import Team from './Team/Team';
 import socket from '../Socket';
 
@@ -13,20 +16,24 @@ class App extends React.Component {
         this.state = {
             id: '',
             team: null,
-            isLoading: false
+            isLoading: false,
+            page: ''
         };
 
         socket.on("franchise loaded", ( team, id ) => {
             this.setState({
                 id,
                 team,
-                isLoading: false
+                isLoading: false,
+                page: 'rosters'
             });
         });
     }
 
     shouldComponentUpdate ( nextProps, nextState ) {
         return nextState.isLoading !== this.state.isLoading ||
+            nextState.page !== this.state.page ||
+            nextProps.settings !== this.props.settings ||
             nextState.id !== this.state.id;
     }
 
@@ -38,10 +45,10 @@ class App extends React.Component {
     }
 
     componentWillMount () {
-        let id = this.state.id || '0001';
-        let settings = this.props.settings;
-        this.loadTeam(id);
-        this.setupFranchises(settings);
+        this.setState({
+            isLoading: true,
+            page: 'live-scoring'
+        });
     }
 
     setupFranchises ( settings ) {
@@ -50,7 +57,17 @@ class App extends React.Component {
     }
 
     componentWillReceiveProps ( nextProps ) {
-        this.setupFranchises(nextProps.settings);
+        if ( nextProps.settings !== null && nextProps.settings.franchises ) {
+            let id = this.state.id || '0001';
+            let settings = nextProps.settings;
+            this.loadTeam(id);
+            this.setupFranchises(settings);
+        }
+        else {
+            this.setState({
+                isLoading: true
+            });
+        }
     }
 
     handleID () {
@@ -62,34 +79,50 @@ class App extends React.Component {
         }
     }
 
+    handleNav ( page ) {
+        console.log(this.state.page, page);
+        if ( this.state.page !== page ) {
+            this.setState({
+                page,
+                isLoading: false
+            });
+        }
+    }
+
     render () {
         if ( this.state.team === null ) {
             return null;
         }
+        let opacity = this.state.isLoading === true ?
+                      0.2 :
+                      1;
         let settings = this.props.settings;
-        let teamList = this.teamIDs.map(( id, i ) => {
-            let team = findWhere(this.teams, { id });
-            return (
-                <option key={i} value={id}>
-                    {team.name}
-                </option>
-            );
-        });
+
+        let otherComponent = this.state.page === 'rosters' ? (
+            <Franchise id={this.state.id}>
+                <Team id={this.state.id}
+                      team={this.state.team}/>
+                <TeamSelector teams={this.teams}
+                              loading={this.state.isLoading}
+                              handleChange={() => this.handleID()}/>
+            </Franchise>
+        ) : (
+            <LiveScoring setLoader={state => this.setState({ isLoading: state })}
+                         week={13}/>
+        );
         return (
             <div className="col-xs-12">
-                <header className="heading text-right">
-                    <h5 className="title">
-                        {settings.name}
-                    </h5>
-                </header>
-                <Franchise id={this.state.id}>
-                    <Team id={this.state.id}
-                          team={this.state.team}/>
-                    <TeamSelector loading={this.state.isLoading}
-                                  handleChange={() => this.handleID()}>
-                        {teamList}
-                    </TeamSelector>
-                </Franchise>
+                <Navigation handleNav={page => this.handleNav(page)}
+                            page={this.state.page} />
+                <Loader visible={this.state.isLoading}/>
+                <div style={{ opacity }}>
+                    <header className="heading text-right">
+                        <h5 className="title">
+                            {settings.name}
+                        </h5>
+                    </header>
+                    {otherComponent}
+                </div>
             </div>
         );
     }
@@ -98,26 +131,32 @@ class App extends React.Component {
 class TeamSelector extends React.Component {
     constructor ( props ) {
         super(props);
-        this.state = {};
     }
 
     shouldComponentUpdate ( nextProps, nextState ) {
-        return true;
+        return nextProps.loading !== this.props.loading;
     }
 
     render () {
-        let kids = this.props.children || null;
+        let teamList = this.props.teams.map(( team, i ) => {
+            return (
+                <option key={i}
+                        value={team.id}>
+                    {team.name}
+                </option>
+            );
+        });
         let disabled = this.props.loading ?
                        'disabled' :
                        '';
         return (
-            <div className="form-group">
+            <div className="form-group container">
                 <div className="input-group">
                     <select className="form-control"
                             disabled={disabled}
                             onChange={() => this.props.handleChange()}
                             id="id-input">
-                        {kids}
+                        {teamList}
                     </select>
                 </div>
             </div>

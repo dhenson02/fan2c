@@ -3,7 +3,6 @@
 import React from 'react';
 import { render } from 'react-dom';
 import App from './Components/App';
-import Loader from './Components/Loader';
 import socket from './Socket';
 
 class Main extends React.Component {
@@ -20,9 +19,7 @@ class Main extends React.Component {
     }
 
     componentWillMount () {
-        if ( this.state.settings === null ) {
-            socket.emit("load league settings");
-        }
+        socket.emit("load league settings");
     }
 
     shouldComponentUpdate ( nextProps, nextState ) {
@@ -30,16 +27,7 @@ class Main extends React.Component {
     }
 
     render () {
-        let loading = this.state.settings === null;
-        let app = loading === true ?
-                  null :
-                  <App settings={this.state.settings}/>;
-        return (
-            <div>
-                <Loader visible={loading} />
-                {app}
-            </div>
-        );
+        return <App settings={this.state.settings}/>;
     }
 }
 

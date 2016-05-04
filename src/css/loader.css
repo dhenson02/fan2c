@@ -1,7 +1,8 @@
 /* LOADER - thanks! http://codepen.io/adamdoti/pen/qdJjoa */
 
 .loader {
-	transform: translate3d(-50%, -50%, 0) rotate(90deg);
+	will-change: transform;
+	transform: translate3d(-50%, -50%, 1px) rotate(90deg);
 	position: absolute;
 	top: 50%;
 	left: 50%;

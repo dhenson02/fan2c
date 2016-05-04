@@ -15,10 +15,10 @@ class PlayerItem extends React.Component {
     }
 
     render () {
-        const regName = /^(\w+), (\w+)/;
         let player = this.props.player;
+        const regName = /^([A-Za-z\-]+), ([A-Za-z\-]+)( [A-Za-z\-]+)?/;
 
-        let name = player.name.replace(regName, "$2 $1");
+        let name = player.name.replace(regName, "$2$3 $1");
         let nameElement = player.status !== 'nonstarter' ?
                           <strong>{name}</strong> :
                           name;
