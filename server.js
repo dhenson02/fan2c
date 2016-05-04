@@ -40,12 +40,16 @@ const io = require('socket.io')(server);
 io.on('connection', function ( socket ) {
     console.log(`socket.io got a connection from: `, socket.id);
 
+    let timer = null;
     socket.on("load league settings", () => {
         socket.emit("league settings loaded", league.getSettings());
     });
 
     socket.on("load franchise", id => {
-        socket.emit("franchise loaded", league.getFranchise(id), id);
+        if ( timer ) clearTimeout(timer);
+        timer = setTimeout(() => {
+            socket.emit("franchise loaded", league.getFranchise(id), id);
+        }, 750);
     });
 
     socket.on("load player injury", id => {
@@ -54,7 +58,8 @@ io.on('connection', function ( socket ) {
     });
 
     socket.on("load roster", id => {
-        socket.emit("roster loaded", rosters.getRoster(id), id);
+            socket.emit("roster loaded", rosters.getRoster(id), id);
+
     });
 
     socket.on("load starting lineup", ( id, withScores ) => {

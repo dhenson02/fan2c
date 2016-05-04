@@ -2,46 +2,42 @@
 
 import React from 'react';
 import { findWhere } from 'lodash';
-import Franchise from './Franchise';
+import Loader from './Loader';
+import Navigation from './Navigation';
+import FranchiseInfo from './FranchiseInfo';
+import LiveScoring from '../Views/LiveScoring';
 import Team from './Team/Team';
 import socket from '../Socket';
-
 
 class App extends React.Component {
     constructor ( props ) {
         super(props);
         this.state = {
-            id: '',
-            team: null,
+            page: 'blank',
             isLoading: false
         };
-
-        socket.on("franchise loaded", ( team, id ) => {
-            this.setState({
-                id,
-                team,
-                isLoading: false
-            });
-        });
     }
 
     shouldComponentUpdate ( nextProps, nextState ) {
-        return nextState.isLoading !== this.state.isLoading ||
-            nextState.id !== this.state.id;
-    }
-
-    loadTeam ( id ) {
-        this.setState({
-            isLoading: true
-        });
-        socket.emit("load franchise", id);
+        return nextProps.settings !== this.props.settings ||
+            nextState.page !== this.state.page;
     }
 
     componentWillMount () {
-        let id = this.state.id || '0001';
-        let settings = this.props.settings;
-        this.loadTeam(id);
-        this.setupFranchises(settings);
+        this.setState({
+            isLoading: true
+        });
+    }
+
+    componentWillReceiveProps ( nextProps ) {
+        if ( nextProps.settings !== null && nextProps.settings.franchises ) {
+            this.setupFranchises(nextProps.settings);
+        }
+        else {
+            this.setState({
+                isLoading: false
+            });
+        }
     }
 
     setupFranchises ( settings ) {
@@ -49,8 +45,90 @@ class App extends React.Component {
         this.teamIDs = this.teams.map(team => team.id);
     }
 
+    handleNav ( e, page ) {
+        e.preventDefault();
+        if ( page !== this.state.page ) {
+            this.setState({
+                page
+            })
+        }
+    }
+
+    render () {
+        let settings = this.props.settings;
+
+        let result = null;
+        if ( this.state.page === 'live-scoring' ) {
+            result = (
+                <LiveScoring teams={this.teams}
+                             teamIDs={this.teamIDs}/>
+            );
+        }
+        if ( this.state.page === 'franchises' ) {
+            result = <Franchise settings={settings} />;
+        }
+
+        let style = this.state.isLoading === true ?
+                { opacity: 0.2, pointerEvents: 'none' } :
+                { opacity: 1 };
+
+        return (
+            <div className="col-xs-12">
+                <Loader visible={this.state.isLoading}/>
+                <div style={style}>
+
+                    <Navigation page={this.state.page}
+                                name={settings.name}
+                                handleNav={( e, page ) => this.handleNav(e, page)} />
+
+                    {result}
+
+                </div>
+            </div>
+        );
+    }
+}
+
+class Franchise extends React.Component {
+    constructor ( props ) {
+        super(props);
+        this.state = {
+            id: '',
+            team: null
+        };
+
+        socket.on("franchise loaded", ( team, id ) => {
+            this.setState({
+                id,
+                team
+            });
+        });
+    }
+
+    shouldComponentUpdate ( nextProps, nextState ) {
+        return nextProps.settings !== this.props.settings ||
+            nextState.id !== this.state.id;
+    }
+
     componentWillReceiveProps ( nextProps ) {
-        this.setupFranchises(nextProps.settings);
+        if ( nextProps.settings !== null && nextProps.settings.franchises ) {
+            let id = this.state.id || '0001';
+            let settings = nextProps.settings;
+            this.loadTeam(id);
+            this.setupFranchises(settings);
+        }
+        else {
+            this.setState({
+                isLoading: true
+            });
+        }
+    }
+
+    loadTeam ( id ) {
+        this.setState({
+            isLoading: true
+        });
+        socket.emit("load franchise", id);
     }
 
     handleID () {
@@ -66,31 +144,22 @@ class App extends React.Component {
         if ( this.state.team === null ) {
             return null;
         }
-        let settings = this.props.settings;
-        let teamList = this.teamIDs.map(( id, i ) => {
-            let team = findWhere(this.teams, { id });
+        let teamList = this.teams.map(( team, i ) => {
             return (
-                <option key={i} value={id}>
+                <option key={i} value={team.id}>
                     {team.name}
                 </option>
             );
         });
+
         return (
-            <div className="col-xs-12">
-                <header className="heading text-right">
-                    <h5 className="title">
-                        {settings.name}
-                    </h5>
-                </header>
-                <Franchise id={this.state.id}>
-                    <Team id={this.state.id}
-                          team={this.state.team}/>
-                    <TeamSelector loading={this.state.isLoading}
-                                  handleChange={() => this.handleID()}>
-                        {teamList}
-                    </TeamSelector>
-                </Franchise>
-            </div>
+            <FranchiseInfo id={this.state.id}>
+                <Team id={this.state.id}
+                      team={this.state.team}/>
+                <TeamSelector handleChange={() => this.handleID()}>
+                    {teamList}
+                </TeamSelector>
+            </FranchiseInfo>
         );
     }
 }

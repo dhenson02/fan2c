@@ -4,7 +4,7 @@ import nodeResolve from 'rollup-plugin-node-resolve';
 import { minify } from 'uglify-js';
 
 export default {
-    entry: 'src/js/App.js',
+    entry: 'src/js/Main.js',
     format: 'umd',
     plugins: [
         babel(),

@@ -509,8 +509,9 @@ body {
 /* LOADER - thanks! http://codepen.io/adamdoti/pen/qdJjoa */
 
 .loader {
-	-webkit-transform: translate3d(-50%, -50%, 0) rotate(90deg);
-	        transform: translate3d(-50%, -50%, 0) rotate(90deg);
+	will-change: opacity;
+	-webkit-transform: translate3d(-50%, -50%, 1px) rotate(90deg);
+	        transform: translate3d(-50%, -50%, 1px) rotate(90deg);
 	position: absolute;
 	top: 50%;
 	left: 50%;
@@ -533,6 +534,7 @@ body {
 .loader:after,
 .loader div:before,
 .loader div:after {
+	will-change: transform;
 	-webkit-animation-duration: 1000ms;
 	        animation-duration: 1000ms;
 	-webkit-animation-iteration-count: infinite;
