@@ -91,25 +91,12 @@ class App extends React.Component {
 
     render () {
         if ( this.state.team === null ) {
-            return null;
+            return <Loader visible={this.state.isLoading}/>;
         }
         let opacity = this.state.isLoading === true ?
                       0.2 :
                       1;
         let settings = this.props.settings;
-
-        let otherComponent = this.state.page === 'rosters' ? (
-            <Franchise id={this.state.id}>
-                <Team id={this.state.id}
-                      team={this.state.team}/>
-                <TeamSelector teams={this.teams}
-                              loading={this.state.isLoading}
-                              handleChange={() => this.handleID()}/>
-            </Franchise>
-        ) : (
-            <LiveScoring setLoader={state => this.setState({ isLoading: state })}
-                         week={13}/>
-        );
         return (
             <div className="col-xs-12">
                 <Navigation handleNav={page => this.handleNav(page)}
@@ -121,7 +108,17 @@ class App extends React.Component {
                             {settings.name}
                         </h5>
                     </header>
-                    {otherComponent}
+                    <Franchise visible={this.state.page === 'rosters'}
+                               id={this.state.id}>
+                        <Team id={this.state.id}
+                              team={this.state.team}/>
+                        <TeamSelector teams={this.teams}
+                                      loading={this.state.isLoading}
+                                      handleChange={() => this.handleID()}/>
+                    </Franchise>
+                    <LiveScoring visible={this.state.page === 'live-scoring'}
+                                 setLoader={state => this.setState({ isLoading: state })}
+                                 week={13}/>
                 </div>
             </div>
         );

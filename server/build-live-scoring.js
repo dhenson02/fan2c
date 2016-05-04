@@ -2,8 +2,6 @@
 const fs = require('fs');
 const path = require('path');
 
-
-
 class LiveScoring {
     constructor ( players, league ) {
         let filePath = path.join(__dirname, '..', '/data/liveScoring.json');
@@ -26,6 +24,8 @@ class LiveScoring {
                 player.score = parseInt(player.score, 10);
                 return Object.assign({}, players.getPlayer(player.id), player);
             });
+            teamA.score = parseInt(teamA.score, 10);
+            teamB.score = parseInt(teamB.score, 10);
             let teams = [
                 Object.assign({}, teamA, league.getFranchise(teamA.id)),
                 Object.assign({}, teamB, league.getFranchise(teamB.id))

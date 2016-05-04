@@ -12,7 +12,8 @@ class Franchise extends React.Component {
     }
 
     shouldComponentUpdate ( nextProps, nextState ) {
-        return nextState.showStarters !== this.state.showStarters ||
+        return nextProps.visible !== this.props.visible ||
+            nextState.showStarters !== this.state.showStarters ||
             nextProps.id !== this.props.id;
     }
 
@@ -30,8 +31,14 @@ class Franchise extends React.Component {
             scoreButtonText = 'Hide non-starters';
         }
         let teamInfo = this.props.children || null;
+
+        let styles = this.props.visible ?
+                { visibility: 'visible' } :
+                { visibility: 'hidden', position: 'absolute' };
+
         return (
-            <div className="panel panel-default">
+            <div className="panel panel-default"
+                 style={styles}>
                 {teamInfo}
                 <div>
                     <p className="text-center">

@@ -2,7 +2,8 @@
 
 import React from 'react';
 import socket from '../Socket';
-const regName = /^([A-Za-z\-]+), ([A-Za-z\-]+)( [A-Za-z\-]+)?/;
+const Sorter = require('../Utility/sorting');
+const regName = /^([A-Za-z\-\.]+), ([A-Za-z\-\.]+)( [A-Za-z\-\.]+)*/;
 
 class LiveScoring extends React.Component {
     constructor ( props ) {
@@ -24,7 +25,8 @@ class LiveScoring extends React.Component {
     }
 
     shouldComponentUpdate ( nextProps, nextState ) {
-        return nextState.lastUpdated !== this.state.lastUpdated;
+        return nextProps.visible !== this.props.visible ||
+            nextState.lastUpdated !== this.state.lastUpdated;
     }
 
     componentWillMount () {
@@ -48,8 +50,12 @@ class LiveScoring extends React.Component {
 
     render () {
         let matches = this.setupMatches(this.state.matches);
+        let styles = this.props.visible ?
+                { visibility: 'visible' } :
+                { visibility: 'hidden', position: 'absolute' };
         return (
-            <div className="panel">
+            <div className="panel"
+                 style={styles}>
                 <div className="panel-heading">
                     <h2>Live Scoring <small>Week {this.state.week}</small></h2>
                 </div>
@@ -84,17 +90,22 @@ class MatchUp extends React.Component {
     render () {
         let teamA = this.props.teamA;
         let teamB = this.props.teamB;
+        let winning = teamA.score > teamB.score ?
+                      teamA.name :
+                      teamB.name;
         return (
             <div className="col-xs-12 container">
                 <div className="col-xs-12 col-sm-6 table-responsive">
                     <Team name={teamA.name}
                           players={teamA.players.player}
-                          total={teamA.score}/>
+                          total={teamA.score}
+                          winning={winning}/>
                 </div>
                 <div className="col-xs-12 col-sm-6 table-responsive">
                     <Team name={teamB.name}
                           players={teamB.players.player}
-                          total={teamB.score}/>
+                          total={teamB.score}
+                          winning={winning}/>
                 </div>
             </div>
         );
@@ -111,7 +122,8 @@ class Team extends React.Component {
     }
 
     shouldComponentUpdate ( nextProps, nextState ) {
-        return nextProps.total !== this.props.total ||
+        return nextProps.winning !== this.props.winning ||
+            nextProps.total !== this.props.total ||
             nextState.lastUpdated !== this.state.lastUpdated;
     }
 
@@ -136,7 +148,8 @@ class Team extends React.Component {
     }
 
     setupPlayers ( players ) {
-        return players.map(( player, i ) => {
+        let sortedPlayers = players.sort(Sorter.positionSort);
+        return sortedPlayers.map(( player, i ) => {
             let timeLeft = player.gameSecondsRemaining;
             return (
                 <Player key={i}
@@ -151,26 +164,27 @@ class Team extends React.Component {
 
     render () {
         let players = this.setupPlayers(this.props.players);
+        let winningClass = this.props.winning === this.props.name ?
+                           'pull-right alert alert-success' :
+                           'pull-right ';
         return (
             <table className="table table-striped table-condensed">
-
                 <thead>
-                    <tr colspan="4">
+                    <tr>
                         <th>
-                            <strong>
-                                {this.props.name}
-                            </strong>
+                            {this.props.name}
                         </th>
                         <th></th>
                         <th></th>
-                        <th>
-                            {this.props.total}
-                        </th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     {players}
                 </tbody>
+                <h3 className={winningClass}>
+                    {this.props.total}
+                </h3>
             </table>
         );
     }
@@ -220,8 +234,8 @@ class Player extends React.Component {
         return (
             <tr>
                 <td>
-                    <sup>{this.props.position} </sup>
                     {name}
+                    <sub> {this.props.position} </sub>
                 </td>
                 <td>{this.props.team}</td>
                 <td>{timeLeft}</td>
