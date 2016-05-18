@@ -12,7 +12,7 @@ class Team extends React.Component {
     }
 
     componentWillMount () {
-        let icon = this.props.team.icon ?
+        let icon = this.props.franchise.get('icon') ?
                    true :
                    false;
         this.setState({
@@ -21,7 +21,7 @@ class Team extends React.Component {
     }
 
     componentWillReceiveProps ( nextProps ) {
-        let icon = nextProps.team.icon ?
+        let icon = nextProps.franchise.get('icon') ?
                    true :
                    false;
         this.setState({
@@ -31,8 +31,8 @@ class Team extends React.Component {
 
     shouldComponentUpdate ( nextProps, nextState ) {
         return nextState.icon !== this.state.icon ||
-            nextProps.team.icon !== this.props.team.icon ||
-            nextProps.team.name !== this.props.team.name;
+            nextProps.franchise.get('icon') !== this.props.franchise.get('icon') ||
+            nextProps.franchise.get('name') !== this.props.franchise.get('name');
     }
 
     handleIconError () {
@@ -42,7 +42,10 @@ class Team extends React.Component {
     }
 
     render () {
-        let team = this.props.team;
+        let team = this.props.franchise;
+        if ( !team || team.size === 0 ) {
+            return null;
+        }
         let iconClass = this.state.icon ?
                         "img-circle" :
                         "img-circle icon-missing";
@@ -54,10 +57,10 @@ class Team extends React.Component {
                              width="48"
                              height="48"
                              onError={() => this.handleIconError()}
-                             src={team.icon}/>
-                    </span> {team.name}
+                             src={team.get('icon')}/>
+                    </span> {team.get('name')}
                 </h2>
-                <TeamStats stats={team.stats}/>
+                <TeamStats team={team} stats={team.get('stats')}/>
             </div>
         );
     }

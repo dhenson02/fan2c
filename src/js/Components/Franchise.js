@@ -1,7 +1,9 @@
 'use strict';
 
 import React from 'react';
-import Roster from "./Roster";
+import Team from './Team/Team';
+import Roster from './Roster';
+import { findWhere } from 'lodash';
 
 class Franchise extends React.Component {
     constructor ( props ) {
@@ -12,45 +14,43 @@ class Franchise extends React.Component {
     }
 
     shouldComponentUpdate ( nextProps, nextState ) {
-        return nextProps.visible !== this.props.visible ||
-            nextState.showStarters !== this.state.showStarters ||
-            nextProps.id !== this.props.id;
+        return nextState.showStarters !== this.state.showStarters ||
+            nextProps.params.id !== this.props.params.id;
     }
 
-    handleWithScores ( e ) {
+    componentWillMount () {
+        let id = this.props.params.id || '0002';
+        let franchises = this.props.settings.get('franchises').franchise;
+        if ( id ) {
+            let franchise = findWhere(franchises, { id });
+            this.props.loadFranchise(franchise);
+        }
+        // let id = this.props.params.id || '0001';
+        // let franchises = this.props.settings.get('franchises').franchise;
+        // let franchise = findWhere(franchises, { id });
+        // this.props.loadFranchise(franchise);
+    }
+
+    /*componentWillReceiveProps ( nextProps ) {
+        if ( nextProps.params.id ) {
+            let id = nextProps.params.id || '0001';
+            franchise(id);
+        }
+    }*/
+
+    /*handleWithScores ( e ) {
         e.preventDefault();
         let showStarters = !this.state.showStarters;
         this.setState({ showStarters });
-    }
+    }*/
 
     render () {
-        let scoreButtonClass = 'btn btn-success btn-sm';
-        let scoreButtonText = 'Show all';
-        if ( this.state.showStarters === false ) {
-            scoreButtonClass = 'btn btn-default btn-sm';
-            scoreButtonText = 'Hide non-starters';
-        }
-        let teamInfo = this.props.children || null;
-
-        let styles = this.props.visible ?
-                { visibility: 'visible' } :
-                { visibility: 'hidden', position: 'absolute' };
-
         return (
-            <div className="panel panel-default"
-                 style={styles}>
-                {teamInfo}
-                <div>
-                    <p className="text-center">
-                        <a href="#"
-                           className={scoreButtonClass}
-                           onClick={e => this.handleWithScores(e)}>
-                            {scoreButtonText}
-                        </a>
-                    </p>
-                    <Roster id={this.props.id}
-                            showStarters={this.state.showStarters} />
-                </div>
+            <div>
+                <Team {...this.props}/>
+                <Roster {...this.props}/>
+                {/*React.cloneElement(this.props.children, this.props)*/}
+
             </div>
         );
     }

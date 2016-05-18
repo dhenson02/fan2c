@@ -1,164 +1,86 @@
 'use strict';
 
 import React from 'react';
-import { findWhere } from 'lodash';
-import Loader from './Loader';
-import Navigation from './Navigation';
-import Franchise from './Franchise';
-import LiveScoring from './LiveScoring';
-import Team from './Team/Team';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import socket from '../Socket';
 
+import * as actions from '../Actions/index';
+
+import Loader from './Loader';
+import Navigation from './Navigation';
+
+socket.emit("load league settings");
 
 class App extends React.Component {
     constructor ( props ) {
         super(props);
-        this.state = {
-            id: '',
-            team: null,
-            isLoading: false,
-            page: ''
-        };
-
-        socket.on("franchise loaded", ( team, id ) => {
-            this.setState({
-                id,
-                team,
-                isLoading: false,
-                page: 'rosters'
-            });
+        socket.on('league settings loaded', settings => {
+            props.isLoading(false);
+            props.loadSettings(settings);
         });
-    }
-
-    shouldComponentUpdate ( nextProps, nextState ) {
-        return nextState.isLoading !== this.state.isLoading ||
-            nextState.page !== this.state.page ||
-            nextProps.settings !== this.props.settings ||
-            nextState.id !== this.state.id;
-    }
-
-    loadTeam ( id ) {
-        this.setState({
-            isLoading: true
-        });
-        socket.emit("load franchise", id);
     }
 
     componentWillMount () {
-        this.setState({
-            isLoading: true,
-            page: 'live-scoring'
-        });
+        this.props.isLoading(true);
     }
 
-    setupFranchises ( settings ) {
-        this.teams = settings.franchises.franchise;
-        this.teamIDs = this.teams.map(team => team.id);
-    }
-
-    componentWillReceiveProps ( nextProps ) {
-        if ( nextProps.settings !== null && nextProps.settings.franchises ) {
-            let id = this.state.id || '0001';
-            let settings = nextProps.settings;
-            this.loadTeam(id);
-            this.setupFranchises(settings);
-        }
-        else {
-            this.setState({
-                isLoading: true
-            });
-        }
-    }
-
-    handleID () {
-        if ( this.state.isLoading === false ) {
-            let id = document.getElementById('id-input').value;
-            if ( id ) {
-                this.loadTeam(id);
-            }
-        }
-    }
-
-    handleNav ( page ) {
-        console.log(this.state.page, page);
-        if ( this.state.page !== page ) {
-            this.setState({
-                page,
-                isLoading: false
-            });
-        }
-    }
+    /*shouldComponentUpdate ( nextProps, nextState ) {
+        return nextProps.loading !== this.props.loading ||
+            nextProps.settings !== this.props.settings ||
+            nextState.id !== this.state.id;
+    }*/
 
     render () {
-        if ( this.state.team === null ) {
-            return <Loader visible={this.state.isLoading}/>;
+        const { settings, loading } = this.props;
+
+        if ( settings.size === 0 ) {
+            return <Loader visible={loading}/>;
         }
-        let opacity = this.state.isLoading === true ?
+        let opacity = loading === true ?
                       0.2 :
                       1;
-        let settings = this.props.settings;
         return (
             <div className="col-xs-12">
-                <Navigation handleNav={page => this.handleNav(page)}
-                            page={this.state.page} />
-                <Loader visible={this.state.isLoading}/>
-                <div style={{ opacity }}>
-                    <header className="heading text-right">
-                        <h5 className="title">
-                            {settings.name}
-                        </h5>
-                    </header>
-                    <Franchise visible={this.state.page === 'rosters'}
-                               id={this.state.id}>
-                        <Team id={this.state.id}
-                              team={this.state.team}/>
-                        <TeamSelector teams={this.teams}
-                                      loading={this.state.isLoading}
-                                      handleChange={() => this.handleID()}/>
-                    </Franchise>
-                    <LiveScoring visible={this.state.page === 'live-scoring'}
-                                 setLoader={state => this.setState({ isLoading: state })}
-                                 week={13}/>
+                <Navigation />
+                <header className="heading text-right">
+                    <h5 className="title">
+                        {settings.get('name')}
+                    </h5>
+                </header>
+                <Loader visible={loading}/>
+                <div style={{ willChange: 'opacity', opacity }}>
+
+                    {React.cloneElement(this.props.children, this.props)}
+
                 </div>
             </div>
         );
     }
 }
 
-class TeamSelector extends React.Component {
-    constructor ( props ) {
-        super(props);
-    }
+/*
 
-    shouldComponentUpdate ( nextProps, nextState ) {
-        return nextProps.loading !== this.props.loading;
-    }
+var old = (
+    <div>
+        <Franchise visible={this.state.page === 'rosters'}
+                   id={this.state.id}>
+            <Team id={this.state.id}
+                  team={this.state.team}/>
+            <TeamSelector teams={this.teams}
+                          loading={this.state.isLoading}
+                          handleChange={() => this.handleID()}/>
+        </Franchise>
+        <LiveScoring visible={this.state.page === 'live-scoring'}
+                     setLoader={state => this.setState({ isLoading: state })}
+                     week={13}/>
+    </div>
+);
+*/
 
-    render () {
-        let teamList = this.props.teams.map(( team, i ) => {
-            return (
-                <option key={i}
-                        value={team.id}>
-                    {team.name}
-                </option>
-            );
-        });
-        let disabled = this.props.loading ?
-                       'disabled' :
-                       '';
-        return (
-            <div className="form-group container">
-                <div className="input-group">
-                    <select className="form-control"
-                            disabled={disabled}
-                            onChange={() => this.props.handleChange()}
-                            id="id-input">
-                        {teamList}
-                    </select>
-                </div>
-            </div>
-        );
-    }
-}
+const mapStateToProps = state => ({ ...state });
 
-export default App;
+const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
+

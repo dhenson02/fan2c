@@ -7,22 +7,26 @@ class Rosters {
     constructor ( players ) {
         let file = fs.readFileSync(filePath, { encoding: "utf8" });
         this.rosters = new Map();
-        this.players = players;
         let rosters = JSON.parse(file).franchise;
-        rosters.forEach(roster => {
-            this.players.setupScores(roster.player, roster.id);
-            this.rosters.set(roster.id, roster.player);
-        });
+        return (
+            new Promise(( resolve, reject ) => {
+                rosters.forEach(roster => {
+                    players.setupScores(roster.player, roster.id)
+                        .then(() => {
+                            let fullRoster = roster.player.map(id => players.getPlayer(id));
+                            this.rosters.set(roster.id, fullRoster);
+                            resolve(this);
+                        });
+                });
+            }).then(rosters => {
+                console.log(this.rosters.get('0001'));
+                return rosters;
+            }).catch(console.error)
+        );
     }
 
     getRoster ( id ) {
-        let roster = this.rosters.get(id);
-        let fullRoster = roster.map(player => {
-            return this.players.getPlayer(player.id);
-        });
-        let sortedRoster = fullRoster;
-
-        return sortedRoster;
+        return this.rosters.get(id);
     }
 }
 

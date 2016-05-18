@@ -1,20 +1,18 @@
 'use strict';
 
 import React from 'react';
+import { Link } from 'react-router';
 
 class Navigation extends React.Component {
     constructor ( props ) {
         super(props);
-        this.state = {
-            page: ''
-        };
     }
 
-    shouldComponentUpdate ( nextProps, nextState ) {
-        return nextState.page !== this.state.page;
+    static shouldComponentUpdate () {
+        return false;
     }
 
-    componentWillMount () {
+    /*componentWillMount () {
         this.setState({
             page: this.props.page
         });
@@ -34,29 +32,25 @@ class Navigation extends React.Component {
             page
         });
         this.props.handleNav(page);
-    }
+    }*/
 
     render () {
-        let liveScoringClass = `btn btn-lg btn-default ${this.state.page === 'live-scoring' ?
+        /*let liveScoringClass = `btn btn-lg btn-default ${this.state.page === 'live-scoring' ?
                                                          'active' :
                                                          ''}`;
         let rostersClass = `btn btn-lg btn-default ${this.state.page === 'rosters' ?
                                                         'active' :
-                                                        ''}`;
+                                                        ''}`;*/
         return (
             <nav>
-                <a className={liveScoringClass}
-                   href="#"
-                   onClick={e => this.handleNav(e, 'live-scoring')}
-                   id="nav-live-scoring">
+                <Link to="/live-scoring"
+                      className="btn btn-lg btn-default">
                     Live Scoring
-                </a>
-                <a className={rostersClass}
-                   href="#"
-                   onClick={e => this.handleNav(e, 'rosters')}
-                   id="nav-rosters">
+                </Link>
+                <Link to="/rosters"
+                      className="btn btn-lg btn-default">
                     Rosters
-                </a>
+                </Link>
             </nav>
         );
     }

@@ -1,13 +1,16 @@
 'use strict';
 
 import React from 'react';
-import PlayerList from './Player/PlayerList';
 import { sortBy } from 'lodash';
+
 import Sorter from '../Utility/sorting';
-import findWhere from 'lodash.findwhere';
 import socket from '../Socket';
 
+import PlayerList from './Player/PlayerList';
+import TableHead from './TableHead';
+
 class Roster extends React.Component {
+
     constructor ( props ) {
         super(props);
         this.isLoading = false;
@@ -17,39 +20,46 @@ class Roster extends React.Component {
             sorting: 'position'
         };
 
-        socket.on("starting lineup loaded", lineup => {
+        socket.on('roster loaded', ( roster, id ) => {
+            props.isLoading(false);
+            props.loadRoster(roster, id);
+            this.rosterLoaded(roster);
+        });
+
+        /*socket.on("starting lineup loaded", lineup => {
             let roster = this.tempRoster;
             let fullRoster = roster.map(player => {
                 let starter = findWhere(lineup, { id: player.id });
                 if ( starter === undefined ) {
                     return Object.assign({ status: 'nonstarter' }, player);
                 }
-                /*if ( typeof starter.score === 'string' ) {
+                /!*if ( typeof starter.score === 'string' ) {
                     starter.score = starter.score || '0.0';
                     return Object.assign({}, player, starter);
                 }
-                return Object.assign({ status: 'starter' }, player, starter);*/
+                return Object.assign({ status: 'starter' }, player, starter);*!/
                 return Object.assign({ status: starter.status }, player);
             });
             this.rosterLoaded(fullRoster);
-        });
+        });*/
 
-        socket.on("roster loaded", ( roster, id ) => {
-            this.tempRoster = roster;
-            socket.emit("load starting lineup", id, props.showStarters);
-        });
+        // socket.on("roster loaded", ( roster, id ) => {
+            // this.tempRoster = roster;
+            // id = id || this.props.id;
+            // socket.emit("load starting lineup", id, props.showStarters);
+        // });
     }
 
-    componentWillReceiveProps ( nextProps ) {
-        if ( this.isLoading !== true && nextProps.id !== this.props.id ) {
-            socket.emit("load roster", nextProps.id);
-            this.isLoading = true;
+    /*componentWillReceiveProps ( nextProps ) {
+        if ( this.props.loading !== true && nextProps.params.id !== this.props.params.id ) {
+            this.isLoading(true);
+            socket.emit("load roster", nextProps.params.id);
         }
-    }
+    }*/
 
     componentWillMount () {
-        socket.emit("load roster", this.props.id);
-        this.isLoading = true;
+        this.props.isLoading(true);
+        socket.emit("load roster", this.props.params.id || '0001');
     }
 
     rosterLoaded ( players ) {
@@ -106,7 +116,6 @@ class Roster extends React.Component {
             players: sortedPlayers,
             sorting: 'position'
         });
-        return ;
     }
 
     teamSort ( loadedPlayers ) {
@@ -152,23 +161,19 @@ class Roster extends React.Component {
     }
 
     shouldComponentUpdate ( nextProps, nextState ) {
-        return nextProps.showStarters !== this.props.showStarters ||
-            nextProps.id !== this.props.id ||
+        return nextProps.params.id !== this.props.params.id ||
             nextState.players !== this.state.players ||
             nextState.sorting !== this.state.sorting;
     }
 
     render () {
         let playerList = this.state.players.length !== 0 ?
-                         <PlayerList players={this.state.players}
-                                     showStarters={this.props.showStarters}/> :
+                         <PlayerList players={this.state.players} {...this.props} /> :
                          null;
-        // Put back  table-hover if needed (class)
         return (
-            <table className="table table-roster">
+            <table className="table table-roster table-condensed">
                 <thead>
                     <TableHead sorting={this.state.sorting}
-                               showStarters={this.props.showStarters}
                                nameSort={() => this.nameSort()}
                                positionSort={() => this.positionSort()}
                                teamSort={() => this.teamSort()}
@@ -176,53 +181,6 @@ class Roster extends React.Component {
                 </thead>
                 {playerList}
             </table>
-        );
-    }
-}
-
-class TableHead extends React.Component {
-    constructor ( props ) {
-        super(props);
-    }
-
-    shouldComponentUpdate ( nextProps ) {
-        return nextProps.sorting !== this.props.sorting ||
-            nextProps.showStarters !== this.props.showStarters;
-    }
-
-    render () {
-        let nameClass = this.props.sorting === 'name' ? 'active' : '';
-        let positionClass = this.props.sorting === 'position' ? 'active' : '';
-        let teamClass = this.props.sorting === 'team' ? 'active' : '';
-        let scoreColumn = null;
-        if ( this.props.showStarters === true ) {
-            let scoreClass = this.props.sorting === 'score' ? 'active' : '';
-            scoreColumn = (
-                <th onClick={e => this.props.scoreSort()}
-                    className={scoreClass}>
-                    Score
-                </th>
-            );
-        }
-        return (
-            <tr>
-                {scoreColumn}
-                <th onClick={e => this.props.nameSort()}
-                    className={nameClass}>
-                    Name
-                </th>
-                <th>
-                    Injury
-                </th>
-                <th onClick={e => this.props.positionSort()}
-                    className={positionClass}>
-                    Position
-                </th>
-                <th onClick={e => this.props.teamSort()}
-                    className={teamClass}>
-                    Team
-                </th>
-            </tr>
         );
     }
 }

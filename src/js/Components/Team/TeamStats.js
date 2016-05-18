@@ -4,12 +4,13 @@ import React from 'react';
 
 class TeamStats extends React.Component {
     constructor ( props ) {
+        console.log(props.team.toJS());
         super(props);
     }
 
-    shouldComponentUpdate ( nextProps ) {
+    /*shouldComponentUpdate ( nextProps ) {
         return nextProps.stats.id !== this.props.stats.id;
-    }
+    }*/
 
     render () {
         let stats = this.props.stats;
@@ -20,7 +21,7 @@ class TeamStats extends React.Component {
         let pa = parseInt(stats.pa, 10);
         let ratio = Math.round(100 * (pa / pf));
         let ratioClass = ratio < 81 ?
-                         'success' : 
+                         'success' :
                          ( ratio < 90 ? 'warning' : 'danger' );
         return (
             <ul>
@@ -29,7 +30,9 @@ class TeamStats extends React.Component {
                 {ties}
                 <li>Points scored: {pf}</li>
                 <li>Points against: {pa}</li>
-                <li className={`label label-${ratioClass}`}>Reverse Ratio: {ratio}%</li>
+                <li className={`label label-${ratioClass}`}>
+                    Reverse Ratio: {ratio}%
+                </li>
             </ul>
         );
     }

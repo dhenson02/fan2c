@@ -13,14 +13,9 @@ class LiveScoring extends React.Component {
             week: 0,
             lastUpdated: 0
         };
-        socket.on("live scoring loaded", ( matches, index ) => {
-            let lastUpdated = (new Date()).getTime();
-            props.setLoader(false);
-            this.setState({
-                matches: matches,
-                week: this.props.week,
-                lastUpdated
-            });
+        socket.on('live scoring loaded', ( matches, index, week ) => {
+            props.isLoading(false);
+            props.loadLiveScoring(matches, index, week);
         });
     }
 
@@ -33,12 +28,12 @@ class LiveScoring extends React.Component {
         this.initScores();
     }
 
-    initScores () {
-        this.props.setLoader(true);
-        socket.emit('load live scoring');
+    static initScores () {
+        this.props.isLoading(true);
+        socket.emit('load live scoring', this.props.params.week || 13);
     }
 
-    setupMatches ( matches ) {
+    static setupMatches ( matches ) {
         return matches.map(( match, i ) => {
             return (
                 <MatchUp key={i}
@@ -50,13 +45,9 @@ class LiveScoring extends React.Component {
 
     render () {
         let matches = this.setupMatches(this.state.matches);
-        let styles = this.props.visible ?
-                { visibility: 'visible' } :
-                { visibility: 'hidden', position: 'absolute' };
         return (
-            <div className="panel"
-                 style={styles}>
-                <div className="panel-heading">
+            <div className="panel">
+                <div className="jumbotron">
                     <h2>Live Scoring <small>Week {this.state.week}</small></h2>
                 </div>
                 <div className="panel-body table-responsive">
@@ -147,7 +138,7 @@ class Team extends React.Component {
         });
     }
 
-    setupPlayers ( players ) {
+    static setupPlayers ( players ) {
         let sortedPlayers = players.sort(Sorter.positionSort);
         return sortedPlayers.map(( player, i ) => {
             let timeLeft = player.gameSecondsRemaining;
@@ -165,15 +156,13 @@ class Team extends React.Component {
     render () {
         let players = this.setupPlayers(this.props.players);
         let winningClass = this.props.winning === this.props.name ?
-                           'pull-right alert alert-success' :
-                           'pull-right ';
+                           'h3 pull-right alert alert-success' :
+                           'h3 pull-right ';
         return (
-            <table className="table table-striped table-condensed">
+            <table className="table table-striped">
                 <thead>
                     <tr>
-                        <th>
-                            {this.props.name}
-                        </th>
+                        <th>{this.props.name}</th>
                         <th></th>
                         <th></th>
                         <th></th>
@@ -182,9 +171,11 @@ class Team extends React.Component {
                 <tbody>
                     {players}
                 </tbody>
-                <h3 className={winningClass}>
-                    {this.props.total}
-                </h3>
+                <tfoot>
+                    <tr className={winningClass}>
+                        {this.props.total}
+                    </tr>
+                </tfoot>
             </table>
         );
     }

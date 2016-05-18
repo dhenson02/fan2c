@@ -9,33 +9,39 @@ class Players {
         this.scores = new Map();
         this.injuries = new Map();
         this.players = new Map();
-        this.setupInjuries();
-        this.setupPlayers();
     }
 
-    setupScores ( players, rosterID ) {
-        let playerList = players.map(player => player.id);
+    setupScores ( playerList, rosterID ) {
         let url = `${config.url}${config.year}/export?TYPE=playerScores&W=YTD&L=${config.league}&JSON=1&PLAYERS=${playerList.join(',')}`;
-        request(url, ( error, response, data ) => {
-            if ( error ) {
-                return console.error(error);
-            }
-            if ( response.statusCode === 200 ) {
-                let scoreFilePath = path.join(__dirname, '..', `/data/playerScores-${rosterID}.json`);
-                if ( typeof data === 'string' ) {
-                    fs.writeFile(scoreFilePath, data, { encoding: 'utf8' }, function () {});
-                    data = JSON.parse(data);
-                }
-                else {
-                    fs.writeFile(scoreFilePath, JSON.stringify(data), { encoding: 'utf8' }, function () {});
-                }
-                let scores = data.playerScores.playerScore;
-                scores.forEach(score => this.scores.set(score.id, score));
-            }
-            else {
-                console.error(`Something went wrong.  Response: `, response);
-            }
-        });
+        return (
+            new Promise(( resolve, reject ) => {
+                request(url, ( error, response, data ) => {
+                    if ( error ) {
+                        return reject(error);
+                    }
+                    if ( response.statusCode === 200 ) {
+                        let scoreFilePath = path.join(__dirname, '..', `/data/playerScores-${rosterID}.json`);
+                        if ( typeof data === 'string' ) {
+                            fs.writeFile(scoreFilePath, data, { encoding: 'utf8' }, function () {});
+                            data = JSON.parse(data);
+                        }
+                        else {
+                            fs.writeFile(scoreFilePath, JSON.stringify(data), { encoding: 'utf8' }, function () {});
+                        }
+                        let scores = data.playerScores.playerScore;
+                        scores.forEach(score => this.scores.set(score.id, parseInt(score.score, 10)));
+                        resolve();
+                    }
+                    else {
+                        reject(`Something went wrong.  Response: `, response);
+                    }
+                });
+            })
+                .then(() => this.setupInjuries())
+                .then(() => this.setupPlayers())
+                .catch(console.error)
+        );
+
     }
 
     setupInjuries () {
@@ -53,11 +59,14 @@ class Players {
         let players = JSON.parse(playersFile).player;
         players.forEach(player => {
             let injury = this.injuries.get(player.id);
-            // FOR NOW!!!
-            let score = this.scores.get(player.id) || Math.floor(Math.random() * 100);
+            let score = this.scores.get(player.id);
             let fullPlayer = Object.assign({ injury, score }, player);
             this.players.set(player.id, fullPlayer);
         });
+    }
+
+    getScore ( id ) {
+        return this.scores.get(id);
     }
 
     getInjury ( id ) {

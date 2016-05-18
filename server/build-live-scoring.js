@@ -8,8 +8,8 @@ class LiveScoring {
         let file = fs.readFileSync(filePath, { encoding: "utf8" });
         let scoring = JSON.parse(file);
         let matches = scoring.matchup;
-        let franchises = league.franchises.franchise;
 
+        this.weeks = new Map();
         this.matches = new Map();
         this.matchCount = 0;
 
@@ -39,7 +39,6 @@ class LiveScoring {
         });
 
     }
-
 
     getMatch ( index ) {
         return this.matches.get(index);

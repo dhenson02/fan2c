@@ -3,7 +3,7 @@
 TYPE=$1
 WEEK=$2
 PLAYER=$3
-BASEURL="http://www63.myfantasyleague.com/2015/export?L=45589&TYPE=${TYPE}&JSON=1"
+BASEURL="http://www03.myfantasyleague.com/2015/export?L=45589&TYPE=${TYPE}&JSON=1"
 URL=${BASEURL}
 
 if [ ${WEEK} ]; then

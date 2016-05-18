@@ -2,33 +2,27 @@
 
 import React from 'react';
 import { render } from 'react-dom';
+import { Provider } from 'react-redux';
+import { store, history } from './Data/Store';
+import { Router, Route, IndexRoute } from 'react-router';
+
 import App from './Components/App';
-import socket from './Socket';
+import TeamSelector from './TeamSelector';
+import Franchise from './Components/Franchise';
+import LiveScoring from './Components/LiveScoring';
+import Roster from './Components/Roster';
 
-class Main extends React.Component {
-    constructor () {
-        super();
-        this.state = {
-            settings: null
-        };
-        socket.on("league settings loaded", settings => {
-            this.setState({
-                settings
-            });
-        });
-    }
 
-    componentWillMount () {
-        socket.emit("load league settings");
-    }
-
-    shouldComponentUpdate ( nextProps, nextState ) {
-        return nextState.settings !== this.state.settings;
-    }
-
-    render () {
-        return <App settings={this.state.settings}/>;
-    }
-}
-
-render(<Main />, document.getElementById("main"));
+render(
+    <Provider store={store}>
+        <Router history={history}>
+            <Route path="/" component={App}>
+                <IndexRoute component={TeamSelector} />
+                <Route path="live-scoring" component={LiveScoring}/>
+                <Route path="rosters/:id" component={Franchise}/>
+                {/*<Route path="/:id" component={Roster}/>*/}
+            </Route>
+        </Router>
+    </Provider>,
+    document.getElementById('main')
+);
